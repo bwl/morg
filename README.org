@@ -132,21 +132,40 @@ Mac Org - Simple as that!
 
 *Morg requires Emacs 29 or later* for modern features like tree-sitter, eglot (LSP), and pixel-scroll-precision-mode.
 
-The simplest way is to download from [[https://emacsformacosx.com/][emacsformacosx.com]] - make sure to get the latest version (29+).
+*** Recommended: Emacs Plus via Homebrew
 
-*** Alternative: Install via Homebrew (recommended)
+[[https://github.com/d12frosted/homebrew-emacs-plus][Emacs Plus]] is the best option for Morg. It includes native compilation and tree-sitter by default:
 
-Using Homebrew gives you the Emacs-mac port with better macOS integration:
+#+BEGIN_SRC sh
+brew tap d12frosted/emacs-plus
+brew install emacs-plus@30
+#+END_SRC
+
+This gives you:
+- *Native compilation* for faster startup and execution
+- *Tree-sitter* for better syntax highlighting (built-in, cannot be disabled)
+- *PATH injection* from your shell (ripgrep, aspell, LSP servers work immediately)
+- macOS-specific patches and Emacs.app bundle
+
+After installation, link to Applications:
+#+BEGIN_SRC sh
+ln -s /opt/homebrew/opt/emacs-plus@30/Emacs.app /Applications
+#+END_SRC
+
+*** Alternative: Emacs Mac Port
+
+[[https://github.com/railwaycat/homebrew-emacsmacport][Emacs Mac Port]] offers excellent macOS integration:
 
 #+BEGIN_SRC sh
 brew tap railwaycat/emacsmacport
-brew install emacs-mac --with-native-comp
+brew install emacs-mac
 #+END_SRC
 
-This version includes:
-- Native compilation for faster execution
-- Better macOS integration (emoji, smooth scrolling, retina support)
-- Native support for =org-protocol=
+This version has superior macOS-native feel (smooth scrolling, emoji, retina) but is based on Emacs 29.
+
+*** Alternative: Download binary
+
+Download from [[https://emacsformacosx.com/][emacsformacosx.com]] - make sure to get version 29+. This is the simplest option but lacks native compilation.
 
 ** Install dependencies
 
