@@ -13,7 +13,7 @@
 *The Best Org Mode Experience on macOS*
 
 ** Org Mode Power
-- *org-roam*: Networked knowledge management (Zettelkasten method)
+- *denote*: Simple, file-based Zettelkasten (no database required)
 - *org-modern*: Beautiful, modern visual styling
 - *org-super-agenda*: Smart agenda grouping (Today, Important, Next, Waiting, etc.)
 - *org-capture*: Quick capture templates for todos, notes, journal, meetings
@@ -22,19 +22,22 @@
 - *olivetti*: Distraction-free centered writing mode
 - *mixed-pitch*: Beautiful typography (variable fonts for prose, fixed for code)
 
-** Modern Emacs
-- Requires Emacs 29+ with native-comp, tree-sitter, and eglot (LSP)
-- Pixel-smooth scrolling like native macOS apps
-- Fast startup with optimized early-init
+** Modern Emacs (2024+ Stack)
+- *Vertico + Consult + Orderless*: Modern completion (replaces Ivy/Helm)
+- *Corfu + Cape*: Fast, minimal code completion (replaces Company)
+- *Embark*: Contextual actions on any target
+- *project.el*: Built-in project management (replaces Projectile)
+- *Treemacs*: Modern file tree with workspaces (replaces NeoTree)
+- Requires Emacs 29+ with native-comp, tree-sitter, and eglot
 
 ** macOS Native Feel
 - Command key works as expected (Cmd-S save, Cmd-Z undo, Cmd-Q quit)
 - System clipboard integration
 - Native dark mode support
-- Ergonomic keybindings that follow simple, sensible rules
+- Pixel-smooth scrolling like native macOS apps
 
 ** Developer Tools
-- Multiple cursors, project manager (Projectile), Git (Magit), file tree
+- Multiple cursors, Git (Magit), file tree (Treemacs)
 - LSP support via eglot with common language servers
 - Tree-sitter for better syntax highlighting
 - Spellchecker, thesaurus, and word definition lookup
@@ -432,31 +435,26 @@ This is =winner-mode=. It captures the current window configuration and allows y
 ** Project Management
 
 
-Morg uses [[https://github.com/bbatsov/projectile][Projectile]] for project management. There are a lot of features, and most of them are discoverable from the so-called "command map".
+Morg uses the built-in =project.el= (Emacs 29+) for project management. It's lightweight and integrates with the modern completion stack.
 
-| Binding          | Description                 | Emacs default |
-|------------------+-----------------------------+---------------|
-| =Ctrl-Cmd-p=     | Open projectile command map | =C-c p=       |
-| =Ctrl-Cmd-p= =p= | Switch project              | =C-c p p=     |
-| =Cmd-p=          | Find file in project        | =C-c p f=     |
-| =Cmd-Shift-f=    | Search in project           | =C-c p s s=   |
+| Binding          | Description                 |
+|------------------+-----------------------------|
+| =Ctrl-Cmd-p=     | Switch project              |
+| =Cmd-p=          | Find file in project        |
+| =Cmd-Shift-f=    | Search in project (ripgrep) |
+| =C-c p p=        | Switch project              |
+| =C-c p f=        | Find file in project        |
+| =C-c p g=        | Grep in project             |
+| =C-c p b=        | Switch to project buffer    |
+| =C-c p k=        | Kill project buffers        |
 
-Note that 'Emacs default' doesn't make much sense in this context, since Projectile is not part of Emacs. I try to provide commonly used combinations for these cases: =C-c p= is what Projectile's author suggests, for example, and many configs follow this suggestion.
-
-While in search mode:
-
-| Binding      | Description               |
-|--------------+---------------------------|
-| =Ctrl-Alt-m= | Preview current file      |
-| =Ctrl-Alt-n= | Next file and preview     |
-| =Ctrl-Alt-p= | Previous file and preview |
-| =ESC=        | Quit search               |
+Projects are auto-detected via =.git=, =.project=, or other VCS markers.
 
 ** Git
 
 *** Git gutter
 
-Changes to the current file are shown in the gutter on left side. You can change the appearance of those symbols: search for =git-gutter= section in =init.el=. To see a list of all available colors run =Alt-x counsel-colors-emacs=. See [[https://github.com/syohex/emacs-git-gutter][Git-gutter docs]] for more info.
+Changes to the current file are shown in the gutter on left side. You can change the appearance of those symbols: search for =git-gutter= section in =init.el=. See [[https://github.com/syohex/emacs-git-gutter][Git-gutter docs]] for more info.
 
 [[./screenshots/git_gutter.png]]
 
@@ -492,7 +490,9 @@ There is a toggleable popup shell which is actually a full blown terminal emulat
 | Binding         | Description                                  |
 |-----------------+----------------------------------------------|
 | =Cmd-b=         | Switch to another buffer or open recent file |
-| =Cmd-Shift-b-== | Toggle filetree                              |
+| =Cmd-Shift-b=   | Toggle file tree (Treemacs)                  |
+| =C-x t t=       | Toggle Treemacs                              |
+| =C-x t f=       | Find file in Treemacs                        |
 
 ** Programming
 
@@ -613,27 +613,24 @@ The agenda (=C-c a=) is organized with smart grouping:
 - *Upcoming*: Future deadlines
 - *Someday*: Lower priority TODOs
 
-*** Org-Roam: Knowledge Management
+*** Denote: Knowledge Management
 
-Org-roam provides networked note-taking inspired by Roam Research. Notes are stored in =~/org/roam=.
+[[https://protesilaos.com/emacs/denote][Denote]] provides simple, file-based note-taking (Zettelkasten). No database required—just plain Org files with smart naming. Notes are stored in =~/org/notes=.
 
 | Binding   | Description                         |
 |-----------+-------------------------------------|
+| =C-c n n= | Create new note                     |
 | =C-c n f= | Find or create a note               |
 | =C-c n i= | Insert link to another note         |
-| =C-c n l= | Toggle backlinks buffer             |
-| =C-c n g= | View graph of connections           |
-| =C-c n c= | Capture a new note                  |
-| =C-c n j= | Capture to today's daily note       |
-| =C-c n t= | Go to today's daily note            |
+| =C-c n l= | Show backlinks                      |
+| =C-c n L= | Find and open a backlink            |
+| =C-c n g= | Grep through notes                  |
+| =C-c n j= | Create today's journal entry        |
+| =C-c n r= | Rename file based on front matter   |
 
-Capture templates for org-roam:
+Notes are named with the pattern: =DATE--TITLE__KEYWORDS.org=
 
-| Key | Description                               |
-|-----+-------------------------------------------|
-| =d= | Default note                              |
-| =r= | Reference note (for sources/articles)     |
-| =p= | Project note                              |
+Built-in keywords: =reference=, =project=, =idea=, =meeting=, =journal=
 
 *** Images
 
@@ -660,7 +657,7 @@ Grab links from macOS applications:
 Put your org files in =~/org=. Create the required directories:
 
 #+BEGIN_SRC sh
-mkdir -p ~/org/roam/daily ~/org/roam/references ~/org/roam/projects ~/org/images
+mkdir -p ~/org/notes/journal ~/org/notes/references ~/org/notes/projects ~/org/images
 touch ~/org/inbox.org ~/org/journal.org
 #+END_SRC
 

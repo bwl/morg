@@ -221,23 +221,40 @@
 (set-face-attribute 'mode-line-inactive nil :background "grey50")
 
 
-;; File tree
-(use-package neotree
+;; File tree (Treemacs)
+;; Treemacs is a modern file explorer with workspace support
+(use-package treemacs
+  :defer t
   :config
-  (setq neo-window-width 32
-        neo-create-file-auto-open t
-        neo-banner-message nil
-        neo-show-updir-line t
-        neo-window-fixed-size nil
-        neo-vc-integration nil
-        neo-mode-line-type 'neotree
-        neo-smart-open t
-        neo-show-hidden-files t
-        neo-mode-line-type 'none
-        neo-auto-indent-point t)
-  (setq neo-theme (if (display-graphic-p) 'nerd-icons 'arrow))
-  (setq neo-hidden-regexp-list '("venv" "\\.pyc$" "~$" "\\.git" "__pycache__" ".DS_Store"))
-  (global-set-key (kbd "s-B") 'neotree-toggle))           ;; Cmd+Shift+b toggle tree
+  (setq treemacs-width 35
+        treemacs-indentation 2
+        treemacs-show-hidden-files t
+        treemacs-follow-after-init t
+        treemacs-sorting 'alphabetic-asc
+        treemacs-collapse-dirs 3
+        treemacs-silent-refresh t
+        treemacs-silent-filewatch t
+        treemacs-is-never-other-window t
+        treemacs-no-png-images nil)
+
+  ;; Use nerd-icons for better appearance
+  (setq treemacs-no-png-images nil)
+
+  ;; Git integration
+  (treemacs-git-mode 'deferred)
+
+  :bind (("s-B" . treemacs)                               ;; Cmd+Shift+b toggle tree
+         ("C-x t t" . treemacs)
+         ("C-x t 1" . treemacs-delete-other-windows)
+         ("C-x t d" . treemacs-select-directory)
+         ("C-x t B" . treemacs-bookmark)
+         ("C-x t f" . treemacs-find-file)))
+
+;; Integration with nerd-icons
+(use-package treemacs-nerd-icons
+  :after (treemacs nerd-icons)
+  :config
+  (treemacs-load-theme "nerd-icons"))
 
 
 ;; Show vi-like tilde in the fringe on empty lines.
@@ -463,77 +480,126 @@ point reaches the beginning or end of the buffer, stop there."
 
 
 ;; ==================
-;; PROJECT MANAGEMENT
+;; PROJECT MANAGEMENT (using built-in project.el)
 
 
-;; Use Projectile for project management.
-(use-package projectile
+;; project.el is built into Emacs 29+ and provides excellent project management
+(use-package project
+  :ensure nil  ;; Built-in
   :config
-  (define-key projectile-mode-map (kbd "C-s-p") 'projectile-command-map) ;; Ctrl+Cmd+p show projectile menu
-  (define-key projectile-mode-map (kbd "C-c p") 'projectile-command-map)
-  (projectile-mode +1)
-  )
+  ;; Use ripgrep for project searches if available
+  (when (executable-find "rg")
+    (setq xref-search-program 'ripgrep))
+
+  ;; Keybindings that match the old Projectile style
+  (global-set-key (kbd "C-c p p") 'project-switch-project)
+  (global-set-key (kbd "C-c p f") 'project-find-file)
+  (global-set-key (kbd "C-c p g") 'project-find-regexp)
+  (global-set-key (kbd "C-c p d") 'project-find-dir)
+  (global-set-key (kbd "C-c p b") 'project-switch-to-buffer)
+  (global-set-key (kbd "C-c p k") 'project-kill-buffers)
+  (global-set-key (kbd "C-c p !") 'project-shell-command)
+  (global-set-key (kbd "C-c p &") 'project-async-shell-command)
+
+  ;; macOS-friendly shortcuts
+  (global-set-key (kbd "s-p") 'project-find-file)           ;; Cmd+p open file in project
+  (global-set-key (kbd "s-F") 'project-find-regexp)         ;; Cmd+Shift+F search in project
+  (global-set-key (kbd "C-s-p") 'project-switch-project))   ;; Ctrl+Cmd+p switch project
 
 
 ;; ==========================================
-;; MENUS AND COMPLETION (not code completion)
+;; MINIBUFFER COMPLETION (Vertico + Consult + Orderless)
+;; The modern, modular completion stack
 
 
-;; Use minimalist Ivy for most things.
-(use-package ivy
-  :diminish                             ;; don't show Ivy in minor mode list
+;; Vertico: Vertical minibuffer completion UI
+(use-package vertico
+  :init
+  (vertico-mode)
   :config
-  (ivy-mode 1)                          ;; enable Ivy everywhere
-  (setq ivy-use-virtual-buffers t)      ;; show bookmarks and recent files in buffer list
-  (setq ivy-count-format "(%d/%d) ")
-  (setq enable-recursive-minibuffers t)
-
-  (setq ivy-re-builders-alist
-      '((swiper . ivy--regex-plus)
-        (t      . ivy--regex-fuzzy)))   ;; enable fuzzy searching everywhere except for Swiper
-
-  (global-set-key (kbd "s-b") 'ivy-switch-buffer)  ;; Cmd+b show buffers and recent files
-  (global-set-key (kbd "M-s-b") 'ivy-resume))      ;; Alt+Cmd+b resume whatever Ivy was doing
+  (setq vertico-count 12)                ;; Show 12 candidates
+  (setq vertico-resize nil)              ;; Don't resize minibuffer
+  (setq vertico-cycle t))                ;; Enable cycling through candidates
 
 
-;; Swiper is a better local finder.
-(use-package swiper
+;; Orderless: Flexible completion matching
+(use-package orderless
   :config
-  (global-set-key "\C-s" 'swiper)       ;; Default Emacs Isearch forward...
-  (global-set-key "\C-r" 'swiper)       ;; ... and Isearch backward replaced with Swiper
-  (global-set-key (kbd "s-f") 'swiper)) ;; Cmd+f find text
+  (setq completion-styles '(orderless basic))
+  (setq completion-category-defaults nil)
+  (setq completion-category-overrides '((file (styles partial-completion)))))
 
 
-;; Better menus with Counsel (a layer on top of Ivy)
-(use-package counsel
+;; Marginalia: Rich annotations in the minibuffer
+(use-package marginalia
+  :init
+  (marginalia-mode)
   :config
-  (global-set-key (kbd "M-x") 'counsel-M-x)            ;; Alt+x run command
-  (global-set-key (kbd "s-P") 'counsel-M-x)            ;; Cmd+Shift+p run command
-  (global-set-key (kbd "C-x C-f") 'counsel-find-file)  ;; Replace built-in Emacs 'find file' (open file) with Counsel
-  (global-set-key (kbd "s-o") 'counsel-find-file))     ;; Cmd+o open file
-
-(use-package smex)  ;; show recent commands when invoking Alt-x (or Cmd+Shift+p)
-(use-package flx)   ;; enable fuzzy matching
-(use-package avy)   ;; enable avy for quick navigation
+  (setq marginalia-annotators '(marginalia-annotators-heavy marginalia-annotators-light nil)))
 
 
-;; Make Ivy a bit more friendly by adding information to ivy buffers, e.g. description of commands in Alt-x, meta info when switching buffers, etc.
-(use-package ivy-rich
+;; Consult: Enhanced commands that use completing-read
+(use-package consult
+  :bind (;; C-c bindings
+         ("C-c h" . consult-history)
+         ("C-c m" . consult-mode-command)
+
+         ;; C-x bindings
+         ("C-x b" . consult-buffer)
+         ("C-x 4 b" . consult-buffer-other-window)
+         ("C-x r b" . consult-bookmark)
+
+         ;; M-g bindings (goto)
+         ("M-g g" . consult-goto-line)
+         ("M-g M-g" . consult-goto-line)
+         ("M-g o" . consult-outline)
+         ("M-g i" . consult-imenu)
+         ("M-g I" . consult-imenu-multi)
+
+         ;; M-s bindings (search)
+         ("M-s r" . consult-ripgrep)
+         ("M-s l" . consult-line)
+         ("M-s L" . consult-line-multi)
+         ("M-s g" . consult-grep)
+         ("M-s G" . consult-git-grep)
+
+         ;; Isearch integration
+         ("C-s" . consult-line)          ;; Replace isearch with consult-line
+
+         ;; macOS-friendly shortcuts
+         ("s-f" . consult-line)          ;; Cmd+f find in buffer
+         ("s-b" . consult-buffer)        ;; Cmd+b switch buffer
+         ("s-o" . find-file))            ;; Cmd+o open file
+
   :config
-  (ivy-rich-mode 1)
-  (setq ivy-rich-path-style 'abbrev)) ;; Abbreviate paths using abbreviate-file-name (e.g. replace “/home/username” with “~”)
+  ;; Use ripgrep for consult-grep if available
+  (setq consult-ripgrep-args
+        "rg --null --line-buffered --color=never --max-columns=1000 --path-separator / --smart-case --no-heading --with-filename --line-number --search-zip")
+
+  ;; Preview settings
+  (setq consult-preview-key "M-.")
+  (setq register-preview-delay 0.5))
 
 
-;; Integrate Projectile with Counsel
-(use-package counsel-projectile
+;; Embark: Contextual actions on targets
+(use-package embark
+  :bind (("C-." . embark-act)
+         ("C-;" . embark-dwim)
+         ("C-h B" . embark-bindings))
   :config
-  (counsel-projectile-mode 1)
-  (global-set-key (kbd "C-x C-f") 'counsel-find-file)
-  (global-set-key (kbd "s-p") 'counsel-projectile-find-file)         ;; Cmd+p open file in current project
-  (global-set-key (kbd "s-F") 'counsel-projectile-rg))     ;; Cmd+Shift+F search in current git repository
+  (setq prefix-help-command #'embark-prefix-help-command))
 
 
-(setq projectile-completion-system 'ivy)             ;; Use Ivy in Projectile
+;; Embark-Consult: Integration between Embark and Consult
+(use-package embark-consult
+  :after (embark consult)
+  :hook (embark-collect-mode . consult-preview-at-point-mode))
+
+
+;; avy: Quick navigation by character
+(use-package avy
+  :bind (("C-'" . avy-goto-char-timer)
+         ("M-g w" . avy-goto-word-1)))
 
 
 ;; ========================
@@ -568,20 +634,51 @@ point reaches the beginning or end of the buffer, stop there."
 
 
 ;; ===============
-;; CODE COMPLETION
+;; CODE COMPLETION (Corfu + Cape)
+;; Corfu is the modern, minimal completion UI that uses completion-at-point
 
 
-(use-package company
+;; Corfu: Completion UI
+(use-package corfu
+  :init
+  (global-corfu-mode)
   :config
-  (setq company-idle-delay 0.1)
-  (setq company-global-modes '(not org-mode))
-  (setq company-minimum-prefix-length 1)
-  (add-hook 'after-init-hook 'global-company-mode))
+  (setq corfu-auto t)                    ;; Enable auto completion
+  (setq corfu-auto-delay 0.1)            ;; Delay before showing popup
+  (setq corfu-auto-prefix 1)             ;; Minimum prefix length
+  (setq corfu-cycle t)                   ;; Enable cycling
+  (setq corfu-preselect 'prompt)         ;; Don't preselect first candidate
+  (setq corfu-quit-no-match 'separator)  ;; Quit if no match
+
+  ;; Keybindings
+  (define-key corfu-map (kbd "TAB") 'corfu-next)
+  (define-key corfu-map (kbd "S-TAB") 'corfu-previous)
+  (define-key corfu-map (kbd "RET") 'corfu-insert))
 
 
-;; Set the company completion vocabulary to css and html when in web-mode.
-(defun my-web-mode-hook ()
-  (set (make-local-variable 'company-backends) '(company-css company-web-html company-yasnippet company-files)))
+;; Cape: Completion At Point Extensions
+;; Provides additional completion backends for Corfu
+(use-package cape
+  :init
+  ;; Add useful completion sources
+  (add-to-list 'completion-at-point-functions #'cape-dabbrev)
+  (add-to-list 'completion-at-point-functions #'cape-file)
+  (add-to-list 'completion-at-point-functions #'cape-elisp-block)
+
+  :bind (("C-c p p" . completion-at-point)  ;; capf
+         ("C-c p d" . cape-dabbrev)          ;; dabbrev
+         ("C-c p f" . cape-file)             ;; file
+         ("C-c p h" . cape-history)          ;; history
+         ("C-c p w" . cape-dict)))           ;; dictionary
+
+
+;; Corfu extensions for better experience
+(use-package corfu-popupinfo
+  :ensure nil  ;; Part of corfu
+  :after corfu
+  :hook (corfu-mode . corfu-popupinfo-mode)
+  :config
+  (setq corfu-popupinfo-delay '(0.5 . 0.2)))
 
 
 ;; ===========================
@@ -879,46 +976,78 @@ point reaches the beginning or end of the buffer, stop there."
 
 
 ;; ==================
-;; ORG-ROAM: Networked knowledge management (Zettelkasten)
+;; DENOTE: Simple, file-based note-taking (Zettelkasten)
+;; Denote is simpler than org-roam: no database, just plain files with smart naming
 
 
-(use-package org-roam
+(use-package denote
   :custom
-  (org-roam-directory (file-truename "~/org/roam"))
-  (org-roam-completion-everywhere t)
-  (org-roam-capture-templates
-   '(("d" "default" plain
-      "%?"
-      :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
-                         "#+title: ${title}\n#+date: %U\n#+filetags: \n\n")
-      :unnarrowed t)
-     ("r" "reference" plain
-      "%?"
-      :target (file+head "references/%<%Y%m%d%H%M%S>-${slug}.org"
-                         "#+title: ${title}\n#+date: %U\n#+filetags: :reference:\n\n* Source\n\n* Summary\n\n* Notes\n")
-      :unnarrowed t)
-     ("p" "project" plain
-      "* Goals\n\n%?\n\n* Tasks\n\n* Notes\n"
-      :target (file+head "projects/%<%Y%m%d%H%M%S>-${slug}.org"
-                         "#+title: ${title}\n#+date: %U\n#+filetags: :project:\n\n")
-      :unnarrowed t)))
-  :bind (("C-c n l" . org-roam-buffer-toggle)
-         ("C-c n f" . org-roam-node-find)
-         ("C-c n g" . org-roam-graph)
-         ("C-c n i" . org-roam-node-insert)
-         ("C-c n c" . org-roam-capture)
-         ("C-c n j" . org-roam-dailies-capture-today)
-         ("C-c n t" . org-roam-dailies-goto-today))
-  :config
-  (org-roam-db-autosync-mode)
+  ;; Store notes in ~/org/notes
+  (denote-directory (expand-file-name "~/org/notes"))
 
-  ;; Dailies configuration
-  (setq org-roam-dailies-directory "daily/")
-  (setq org-roam-dailies-capture-templates
-        '(("d" "default" entry
-           "* %?"
-           :target (file+head "%<%Y-%m-%d>.org"
-                              "#+title: %<%Y-%m-%d %A>\n\n")))))
+  ;; Default file type is org
+  (denote-file-type 'org)
+
+  ;; Naming scheme: date-title--keywords.org
+  (denote-known-keywords '("reference" "project" "idea" "meeting" "journal"))
+
+  ;; Prompt for keywords and subdirectory
+  (denote-prompts '(title keywords subdirectory))
+
+  ;; Allow multi-word keywords
+  (denote-infer-keywords t)
+  (denote-sort-keywords t)
+
+  ;; Org-specific settings
+  (denote-org-front-matter
+   "#+title:      %s
+#+date:       %s
+#+filetags:   %s
+#+identifier: %s
+\n")
+
+  :bind (;; Note creation
+         ("C-c n n" . denote)                    ;; Create new note
+         ("C-c n N" . denote-type)               ;; Create note with specific type
+         ("C-c n t" . denote-template)           ;; Create from template
+
+         ;; Note finding
+         ("C-c n f" . denote-open-or-create)     ;; Find or create note
+         ("C-c n g" . denote-grep)               ;; Grep through notes
+
+         ;; Linking
+         ("C-c n i" . denote-link)               ;; Insert link to note
+         ("C-c n I" . denote-add-links)          ;; Add links matching regex
+         ("C-c n l" . denote-backlinks)          ;; Show backlinks
+         ("C-c n L" . denote-find-backlink)      ;; Find and open a backlink
+
+         ;; Renaming/organizing
+         ("C-c n r" . denote-rename-file)        ;; Rename using front matter
+         ("C-c n R" . denote-rename-file-using-front-matter)
+
+         ;; Journal
+         ("C-c n j" . denote-journal-extras-new-entry))  ;; Today's journal
+
+  :config
+  ;; Auto-rename based on front matter on save
+  (denote-rename-buffer-mode 1)
+
+  ;; Create subdirectories for different note types
+  (setq denote-subdirectory-alist
+        '(("journal" . "journal")
+          ("reference" . "references")
+          ("project" . "projects"))))
+
+
+;; Denote extensions for journaling
+(use-package denote-journal-extras
+  :ensure nil  ;; Part of denote
+  :after denote
+  :config
+  (setq denote-journal-extras-directory
+        (expand-file-name "journal" denote-directory))
+  (setq denote-journal-extras-keyword "journal")
+  (setq denote-journal-extras-title-format 'day-date-month-year))
 
 
 ;; ==================
