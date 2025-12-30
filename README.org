@@ -74,7 +74,7 @@ Emacs is +an extensible, customizable text editor+ a framework for creating any 
 
 ** Core principles
 
-1. *Be beginner-friendly*. Anyone should be able to start using Castlemacs just like they can start using VS Code, Sublime, etc.
+1. *Be beginner-friendly*. Anyone should be able to start using Morg just like they can start using VS Code, Sublime, etc.
 2. *Respect macOS.* Common system-wide keybindings work as you expect.
 3. *Respect Emacs.* Never break vanilla Emacs compatibility. Always provide a way to go "full Emacs" if user so desires.
 4. *No layers of complexity.* No custom configuration layers, no DSL, nothing new. Simple =init.el=, packages installed and configured via =use-package=.
@@ -88,9 +88,9 @@ Maybe! /Nothing/ binds Morg to macOS except for some conventions. As long as you
 *I don't know Emacs. Can I use Morg or is it hard?*. You don't need to know Emacs, but it will help. The goal of this project is to make a setup that is suitable for absolute beginners.
 
 *Is this similar to Spacemacs?*
-No. Spacemacs is a big, custom distribution with additional layers on top of Emacs. Castlemacs is simply a pre-configured Emacs. You don't need to learn anything new if you know your way around Emacs.
+No. Spacemacs is a big, custom distribution with additional layers on top of Emacs. Morg is simply a pre-configured Emacs. You don't need to learn anything new if you know your way around Emacs.
 
-*Will Castlemacs support <something>?*
+*Will Morg support <something>?*
 Probably, unless it goes against the Core Principles. Feel free to open an issue.
 
 *Does this setup work well in the terminal?*
@@ -101,81 +101,98 @@ Mac Org - Simple as that!
 
 *Why was the original prooject called Castlemacs?* See [[#why-this-name][Why this name?]]
 
-*Where do I store my private config?* You can store your regular private config in =private.el=. This file will not be changed in Castlemacs, so you don't have worry about conflicts.
+*Where do I store my private config?* You can store your regular private config in =private.el=. This file will not be changed in Morg, so you don't have worry about conflicts.
 
-*Why does Castlemacs uses the system clipboard separately from the kill ring?* Kill ring system is powerful, but potentially confusing for newcomers. The way it is integrated with the system clipboard by default makes it even more confusing. For these reasons Castlemacs uses the system clipboard only (via the usual macOS key combinations), and keeps the kill ring system independently available to those who want it.
+*Why does Morg use the system clipboard separately from the kill ring?* Kill ring system is powerful, but potentially confusing for newcomers. The way it is integrated with the system clipboard by default makes it even more confusing. For these reasons Morg uses the system clipboard only (via the usual macOS key combinations), and keeps the kill ring system independently available to those who want it.
 
 * Installation
 
 ** Install Emacs
 
-Download Emacs from [[https://emacsformacosx.com/][emacsformacosx.com]]. That's it!
+*Morg requires Emacs 29 or later* for modern features like tree-sitter, eglot (LSP), and pixel-scroll-precision-mode.
 
-*** Alternative version (advanced)
+The simplest way is to download from [[https://emacsformacosx.com/][emacsformacosx.com]] - make sure to get the latest version (29+).
 
-The "simplest way" is the canonical Emacs distribution for macOS. However, it has a number of disadvantages:
+*** Alternative: Install via Homebrew (recommended)
 
-- Due to some build options related to graphics, certain extensions like Powerline produce incorrect colors (RGB space issue)
-- No emoji support (if you're into this kind of stuff)
-- No sub-pixel smooth scrolling
-- No native support for =org-protocol=
-
-If these are important to you, consider installing Mitsuharu Yamamoto's port instead.
+Using Homebrew gives you the Emacs-mac port with better macOS integration:
 
 #+BEGIN_SRC sh
 brew tap railwaycat/emacsmacport
-brew install emacs-mac --with-natural-title-bar
-ln -s /usr/local/opt/emacs-mac/Emacs.app /Applications
+brew install emacs-mac --with-native-comp
 #+END_SRC
+
+This version includes:
+- Native compilation for faster execution
+- Better macOS integration (emoji, smooth scrolling, retina support)
+- Native support for =org-protocol=
 
 ** Install dependencies
 
-Castlemacs relies on [[https://github.com/BurntSushi/ripgrep][ripgrep]] to quickly search within a project. Install it:
+Morg relies on [[https://github.com/BurntSushi/ripgrep][ripgrep]] to quickly search within a project. Install it:
 
 #+BEGIN_SRC sh
 brew install ripgrep
 #+END_SRC
 
-Castlemacs requires =aspell=, a Free and Open Source spell checker. Install it:
+Morg requires =aspell=, a Free and Open Source spell checker. Install it:
 
 #+BEGIN_SRC sh
 brew install aspell
 #+END_SRC
 
-We also need `gnutls` — GNU Transport Layer Security (TLS) Library:
+*** Optional: Language Servers for LSP support
+
+Morg includes [[https://github.com/joaotavora/eglot][eglot]] for Language Server Protocol support. To use it, install language servers for your languages:
 
 #+BEGIN_SRC sh
-brew install gnutls
+# Python
+pip install python-lsp-server
+
+# JavaScript/TypeScript
+npm install -g typescript-language-server typescript
+
+# Rust
+rustup component add rust-analyzer
+
+# Go
+go install golang.org/x/tools/gopls@latest
+
+# Ruby
+gem install solargraph
 #+END_SRC
 
-** Install Castlemacs
+*** Optional: Tree-sitter grammars
 
-Backup current Emacs config (if exists), then clone Castlemacs from Github:
+Morg uses Emacs 29's built-in tree-sitter for better syntax highlighting. Install grammars with:
+=M-x treesit-install-language-grammar=
+
+Common grammars: bash, c, cpp, css, go, html, javascript, json, python, ruby, rust, tsx, typescript, yaml
+
+** Install Morg
+
+Backup current Emacs config (if exists), then clone Morg from Github:
 
 #+BEGIN_SRC sh
 mv ~/.emacs.d ~/.emacs.d.bak
-git clone https://github.com/freetonik/castlemacs ~/.emacs.d
+git clone https://github.com/freetonik/morg ~/.emacs.d
 #+END_SRC
 
-Launch Emacs and wait for several minutes. On the first launch it will download and install packages. When it's done and the status line in the bottom stops outputting text, restart Emacs.
+Launch Emacs and wait for packages to install. On the first launch it will download and install all packages automatically. When done, restart Emacs.
 
-Don't worry about warning messages on the first launch, they will go away after first restart.
+After first launch, run =M-x nerd-icons-install-fonts= to install the icon fonts.
+
+Don't worry about warning messages on the first launch, they will go away after restart.
 
 ** Setup keyboard
 
-*I highly recommend changing Caps Lock to Control* by going to System Preferences → Keyboard → Modifier Keys. This way you will have a more comfortable Control under your left pinky.
-
-If you use Japanese Magic Keyboard, then you don't have to do anything, since =control= is in a good place already.
-
-** Note to Mojave users
-
-In macOS Mojave Emacs build might fail due to some changes in Xcode command line tools. Xcode command line tools *must* be pointed to the release version of Xcode 10 instead of the beta version. Use xcode-select to accomplish this.
+*I highly recommend changing Caps Lock to Control* by going to System Settings → Keyboard → Keyboard Shortcuts → Modifier Keys. This way you will have a more comfortable Control under your left pinky.
 
 * Usage
 
 ** Modifier keys
 
-Castlemacs takes advantage of two facts:
+Morg takes advantage of two facts:
 
 1. =Command= key is used in macOS for all major system shortcuts, so users have muscle memory;
 2. Emacs recognizes a =Super= key, but almost never uses it by default.
@@ -319,7 +336,7 @@ Learn about all features of multiple cursors at https://github.com/magnars/multi
 
 *** Indentation
 
-Emacs is pretty good at indenting stuff automatically. Pressing =TAB= on a line or region will indent it as needed. Castlemacs assumes that we never use tabs, only spaces, and use 2 spaces by default in most languages.
+Emacs is pretty good at indenting stuff automatically. Pressing =TAB= on a line or region will indent it as needed. Morg assumes that we never use tabs, only spaces, and use 2 spaces by default in most languages.
 
 | Binding   | Description                                  |
 |-----------+----------------------------------------------|
@@ -375,7 +392,7 @@ This is =winner-mode=. It captures the current window configuration and allows y
 ** Project Management
 
 
-Castlemacs uses [[https://github.com/bbatsov/projectile][Projectile]] for project management. There are a lot of features, and most of them are discoverable from the so-called "command map".
+Morg uses [[https://github.com/bbatsov/projectile][Projectile]] for project management. There are a lot of features, and most of them are discoverable from the so-called "command map".
 
 | Binding          | Description                 | Emacs default |
 |------------------+-----------------------------+---------------|
@@ -405,7 +422,7 @@ Changes to the current file are shown in the gutter on left side. You can change
 
 *** Magit
 
-Castlemacs uses [[https://magit.vc/][Magit]], a wonderful package that aspires to be a complete Git porcelain.
+Morg uses [[https://magit.vc/][Magit]], a wonderful package that aspires to be a complete Git porcelain.
 
 | Binding | Description  |
 |---------+--------------|
@@ -441,7 +458,7 @@ There is a toggleable popup shell which is actually a full blown terminal emulat
 
 *** Languages and modes
 
-Emacs supports many programming languages by default. Castlemacs adds support for YAML, Markdown, Web mode (HTML, CSS, PHP, templating, etc), Emmet.
+Emacs supports many programming languages by default. Morg adds support for YAML, Markdown, Web mode (HTML, CSS, PHP, templating, etc), Emmet, and includes tree-sitter and LSP (via eglot) support for enhanced language intelligence.
 
 Feel free to add more features by sending a PR or opening an issue.
 
@@ -514,7 +531,7 @@ This requires an internet connection.
 
 Org mode is for keeping notes, maintaining TODO lists, planning projects, and authoring documents with a fast and effective plain-text system. Learn more about Org at https://orgmode.org/. (Caution! This is a black hole!)
 
-Castlemacs provides some nice defaults:
+Morg provides some nice defaults:
 
 - Visually indent sections
 - Tab in source blocks acts like in corresponding major mode
@@ -534,9 +551,9 @@ Org agenda looks inside all the files in =~/org=
 
 * Why this name?
 
-Castlemacs takes advantage of the heavily used Command key on macOS. The Command key icon ⌘ is a 'looped square': it's known as /the place of interest sign/ when used on information signs, a practice which started in Finland in the 1950s, spreading to the other Nordic countries in the 1960s.
+*Morg* = *M*ac + *Org*. Simple as that!
 
-The symbol is derived from a shape of a castle. Here, for example, is the Borgholm Castle in Sweden:
+This project was originally called *Castlemacs*, which referenced the Command key (⌘) used heavily on macOS. The ⌘ symbol is a 'looped square' known as /the place of interest sign/, derived from the shape of a castle (like Borgholm Castle in Sweden).
 
 [[./images/borgholm-castle.jpg]]
 

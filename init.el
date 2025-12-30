@@ -6,17 +6,12 @@
 
 
 ;; Package system and sources.
-(require 'package)
-(let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
-                 (not (gnutls-available-p))))
-    (proto (if no-ssl "http" "https")))
-    ;; Comment/uncomment these two lines to enable/disable MELPA and MELPA Stable as desired
-    (add-to-list 'package-archives (cons "melpa" (concat proto "://melpa.org/packages/")) t)
-    ;;(add-to-list 'package-archives (cons "melpa-stable" (concat proto "://stable.melpa.org/packages/")) t)
-    (when (< emacs-major-version 24)
-    ;; For important compatibility libraries like cl-lib
-(add-to-list 'package-archives '("gnu" . (concat proto "://elpa.gnu.org/packages/")))))
+;; Morg requires Emacs 29+ for modern features like tree-sitter, eglot, and pixel-scroll
+(when (< emacs-major-version 29)
+  (error "Morg requires Emacs 29 or later. You are running Emacs %s" emacs-version))
 
+(require 'package)
+(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
 
@@ -31,10 +26,13 @@
 (setq use-package-always-ensure t)
 
 
-;; Pass system shell environment to Emacs. This is important primarily for shell inside Emacs, but also things like Org mode export to Tex PDF don't work, since it relies on running external command pdflatex, which is loaded from PATH.
+;; Pass system shell environment to Emacs. This is important primarily for shell inside Emacs,
+;; but also things like Org mode export to Tex PDF don't work, since it relies on running
+;; external command pdflatex, which is loaded from PATH.
 (use-package exec-path-from-shell
-  :ensure t)
-(when (memq window-system '(mac ns))
+  :ensure t
+  :if (memq window-system '(mac ns))
+  :config
   (exec-path-from-shell-initialize))
 
 
@@ -43,7 +41,7 @@
 (load custom-file 'noerror)
 
 
-;; Set path for private config. private.el is not part of Castlemacs and you can use it for your personal
+;; Set path for private config. private.el is not part of Morg and you can use it for your personal
 ;; additions. Do not change init.el yourself, it will make updates harder.
 (add-hook
  'after-init-hook
@@ -79,13 +77,17 @@
 
 ;; Smoother and nicer scrolling
 (setq scroll-margin 10
-   scroll-step 1
-   next-line-add-newlines nil
-   scroll-conservatively 10000
-   scroll-preserve-screen-position 1)
+      scroll-step 1
+      next-line-add-newlines nil
+      scroll-conservatively 10000
+      scroll-preserve-screen-position 1)
 
 (setq mouse-wheel-follow-mouse 't)
 (setq mouse-wheel-scroll-amount '(1 ((shift) . 1)))
+
+;; Enable pixel-precise scrolling (Emacs 29+)
+;; This provides smooth scrolling like native macOS apps
+(pixel-scroll-precision-mode 1)
 
 
 ;; Use ESC as universal get me out of here command
@@ -121,7 +123,7 @@
  help-window-select t              ; Select help window so it's easy to quit it with 'q'
 )
 
-(fset 'yes-or-no-p 'y-or-n-p)      ; y and n instead of yes and no everywhere else
+(setq use-short-answers t)         ; y and n instead of yes and no everywhere (Emacs 28+)
 (delete-selection-mode 1)          ; Delete selected text when typing
 (global-unset-key (kbd "s-p"))     ; Don't print
 
@@ -155,10 +157,19 @@
 ;; VISUALS
 
 
-;; Enable transparent title bar on macOS
+;; macOS-specific frame settings
 (when (memq window-system '(mac ns))
-  (add-to-list 'default-frame-alist '(ns-appearance . dark)) ;; {light, dark}
-  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t)))
+  ;; Transparent titlebar with dark appearance
+  (add-to-list 'default-frame-alist '(ns-appearance . dark))
+  (add-to-list 'default-frame-alist '(ns-transparent-titlebar . t))
+
+  ;; Use thin window dividers
+  (add-to-list 'default-frame-alist '(internal-border-width . 0))
+
+  ;; Match system appearance when available (Emacs 29+ on macOS 10.14+)
+  ;; Uncomment below to auto-switch between light/dark based on system setting
+  ;; (setq ns-use-proxy-icon nil)   ; Disable proxy icon in titlebar
+  )
 
 
 ;; Font
@@ -171,9 +182,9 @@
 (load-theme 'misterioso)
 
 
-;; Pretty icons
-(use-package all-the-icons)
-;; MUST DO M-x all-the-icons-install-fonts after
+;; Pretty icons (nerd-icons is the modern replacement for all-the-icons)
+(use-package nerd-icons)
+;; MUST DO M-x nerd-icons-install-fonts after first install
 
 
 ;; Hide toolbar and scroll bar
@@ -224,7 +235,7 @@
         neo-show-hidden-files t
         neo-mode-line-type 'none
         neo-auto-indent-point t)
-  (setq neo-theme (if (display-graphic-p) 'nerd 'arrow))
+  (setq neo-theme (if (display-graphic-p) 'nerd-icons 'arrow))
   (setq neo-hidden-regexp-list '("venv" "\\.pyc$" "~$" "\\.git" "__pycache__" ".DS_Store"))
   (global-set-key (kbd "s-B") 'neotree-toggle))           ;; Cmd+Shift+b toggle tree
 
@@ -654,6 +665,63 @@ point reaches the beginning or end of the buffer, stop there."
 ;; Ctrl+j or Ctrl+Enter to expand
 
 
+;; ==================
+;; TREE-SITTER (Emacs 29+)
+;; Tree-sitter provides better syntax highlighting and code analysis
+
+
+;; Enable tree-sitter based modes when available
+;; These provide better syntax highlighting and code analysis than regex-based modes
+(setq major-mode-remap-alist
+      '((yaml-mode . yaml-ts-mode)
+        (bash-mode . bash-ts-mode)
+        (js-mode . js-ts-mode)
+        (javascript-mode . js-ts-mode)
+        (js2-mode . js-ts-mode)
+        (typescript-mode . typescript-ts-mode)
+        (json-mode . json-ts-mode)
+        (css-mode . css-ts-mode)
+        (python-mode . python-ts-mode)
+        (ruby-mode . ruby-ts-mode)
+        (rust-mode . rust-ts-mode)
+        (go-mode . go-ts-mode)))
+
+;; Optional: Automatically install tree-sitter grammars
+;; Run M-x treesit-install-language-grammar to install grammars for specific languages
+;; Common grammars: bash, c, cpp, css, go, html, javascript, json, python, ruby, rust, tsx, typescript, yaml
+
+
+;; ==================
+;; LSP WITH EGLOT (Emacs 29+ built-in)
+;; Eglot provides Language Server Protocol support for better code intelligence
+
+
+(use-package eglot
+  :ensure nil  ;; Built-in to Emacs 29+
+  :hook ((python-mode python-ts-mode) . eglot-ensure)
+  :hook ((js-mode js-ts-mode typescript-ts-mode) . eglot-ensure)
+  :hook ((rust-mode rust-ts-mode) . eglot-ensure)
+  :hook ((go-mode go-ts-mode) . eglot-ensure)
+  :hook ((ruby-mode ruby-ts-mode) . eglot-ensure)
+  :config
+  ;; Performance tuning
+  (setq eglot-autoshutdown t)  ;; Shutdown server when last buffer is closed
+  (setq eglot-events-buffer-size 0)  ;; Disable events buffer for performance
+
+  ;; Keybindings for common LSP actions
+  (define-key eglot-mode-map (kbd "C-c l r") 'eglot-rename)
+  (define-key eglot-mode-map (kbd "C-c l a") 'eglot-code-actions)
+  (define-key eglot-mode-map (kbd "C-c l f") 'eglot-format)
+  (define-key eglot-mode-map (kbd "C-c l d") 'eldoc))
+
+;; Note: You'll need to install language servers for eglot to work:
+;; - Python: pip install python-lsp-server
+;; - JavaScript/TypeScript: npm install -g typescript-language-server typescript
+;; - Rust: rustup component add rust-analyzer
+;; - Go: go install golang.org/x/tools/gopls@latest
+;; - Ruby: gem install solargraph
+
+
 ;; ========
 ;; ORG MODE
 
@@ -682,7 +750,7 @@ point reaches the beginning or end of the buffer, stop there."
 (global-set-key (kbd "C-x C") (lambda () (interactive) (find-file "~/.emacs.d/init.el")))
 
 ;; Open private config file by pressing C-x and then c
-;; Contain custom settings to private.el to ensure easy Castlemacs updates.
+;; Contain custom settings to private.el to ensure easy Morg updates.
 (global-set-key (kbd "C-x c") (lambda () (interactive) (find-file "~/.emacs.d/private.el")))
 
 ;; =======
