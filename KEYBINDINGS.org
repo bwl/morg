@@ -1,0 +1,381 @@
+#+TITLE: Morg Keyboard Shortcuts
+#+AUTHOR: Morg
+#+STARTUP: overview
+
+* Quick Reference
+
+| Category       | Key         | Action                    |
+|----------------+-------------+---------------------------|
+| Files          | =Cmd-o=     | Open file                 |
+| Files          | =Cmd-s=     | Save                      |
+| Files          | =Cmd-p=     | Find file in project      |
+| Search         | =Cmd-f=     | Find in buffer            |
+| Search         | =Cmd-F=     | Find in project (ripgrep) |
+| Buffers        | =Cmd-b=     | Switch buffer             |
+| Windows        | =Cmd-1=     | Close other windows       |
+| Windows        | =Cmd-w=     | Close window              |
+| Editing        | =Cmd-z=     | Undo                      |
+| Editing        | =Cmd-Z=     | Redo                      |
+| Editing        | =Cmd-d=     | Select next occurrence    |
+| Git            | =Cmd-g=     | Magit status              |
+| Tree           | =Cmd-B=     | Toggle Treemacs           |
+| Notes          | =C-c n n=   | New Denote note           |
+| Org            | =C-c a=     | Agenda                    |
+| Org            | =C-c c=     | Capture                   |
+| Actions        | =C-.=       | Embark actions            |
+
+* Modifier Keys
+
+| Name    | Mac Key     | Emacs | Example     |
+|---------+-------------+-------+-------------|
+| Super   | Command ⌘   | =s-=  | =s-s= save  |
+| Meta    | Option ⌥    | =M-=  | =M-x= command |
+| Control | Control ⌃   | =C-=  | =C-g= cancel |
+
+Right Option (⌥) types special characters (€, —, etc.)
+
+* Basics
+
+** File Operations
+
+| Binding   | Action              |
+|-----------+---------------------|
+| =Cmd-o=   | Open file           |
+| =Cmd-s=   | Save file           |
+| =Cmd-S=   | Save as             |
+| =Cmd-q=   | Quit Emacs          |
+| =C-x C=   | Open init.el        |
+| =C-x c=   | Open private.el     |
+
+** Undo/Redo
+
+| Binding | Action |
+|---------+--------|
+| =Cmd-z= | Undo   |
+| =Cmd-Z= | Redo   |
+
+** Selection
+
+| Binding | Action           |
+|---------+------------------|
+| =Cmd-a= | Select all       |
+| =Cmd-'= | Expand region    |
+| =Cmd-"= | Contract region  |
+| =ESC=   | Cancel / C-g     |
+
+* Navigation
+
+** Basic Movement
+
+| Binding     | Action              |
+|-------------+---------------------|
+| =Cmd-i=     | Up (alternative)    |
+| =Cmd-k=     | Down (alternative)  |
+| =Cmd-j=     | Left (alternative)  |
+| =Cmd-l=     | Right (alternative) |
+| =Cmd-LEFT=  | Beginning of line   |
+| =Cmd-RIGHT= | End of line         |
+| =Cmd-UP=    | Beginning of buffer |
+| =Cmd-DOWN=  | End of buffer       |
+
+** Jump Navigation
+
+| Binding   | Action                     |
+|-----------+----------------------------|
+| =C-'=     | Avy: jump to char (timer)  |
+| =M-g w=   | Avy: jump to word          |
+| =M-g g=   | Go to line                 |
+| =M-g o=   | Jump to outline heading    |
+| =M-g i=   | Jump to imenu symbol       |
+
+** Mark Ring (History)
+
+| Binding | Action                  |
+|---------+-------------------------|
+| =Cmd-,= | Go to previous position |
+| =Cmd-.= | Go to next position     |
+| =Cmd-<= | Previous buffer         |
+| =Cmd->= | Next buffer             |
+
+* Search & Replace
+
+** Consult Search
+
+| Binding   | Action                      |
+|-----------+-----------------------------|
+| =Cmd-f=   | Search in buffer            |
+| =C-s=     | Search in buffer            |
+| =M-s l=   | Search lines (consult-line) |
+| =M-s r=   | Ripgrep in project          |
+| =M-s g=   | Grep                        |
+| =M-s G=   | Git grep                    |
+
+** Replace
+
+| Binding     | Action         |
+|-------------+----------------|
+| =Cmd-r=     | Visual replace |
+| =M-Cmd-f=   | Visual replace |
+
+* Buffers & Windows
+
+** Buffer Switching
+
+| Binding   | Action                        |
+|-----------+-------------------------------|
+| =Cmd-b=   | Switch buffer (consult)       |
+| =C-x b=   | Switch buffer                 |
+| =C-x 4 b= | Switch buffer other window    |
+
+** Window Splitting
+
+| Binding | Action              |
+|---------+---------------------|
+| =Cmd-1= | Close other windows |
+| =Cmd-2= | Split horizontal    |
+| =Cmd-3= | Split vertical      |
+| =Cmd-0= | Close this window   |
+| =Cmd-w= | Close this window   |
+
+** Window Movement
+
+| Binding       | Action      |
+|---------------+-------------|
+| =Cmd-[=       | Window left |
+| =Cmd-]=       | Window right|
+| =Cmd-{=       | Window up   |
+| =Cmd-}=       | Window down |
+| =Ctrl-Cmd-←=  | Window left |
+| =Ctrl-Cmd-→=  | Window right|
+| =Ctrl-Cmd-↑=  | Window up   |
+| =Ctrl-Cmd-↓=  | Window down |
+
+** Window History
+
+| Binding     | Action                     |
+|-------------+----------------------------|
+| =M-Cmd-[=   | Restore previous layout    |
+| =M-Cmd-]=   | Redo layout                |
+
+* Editing
+
+** Lines
+
+| Binding         | Action                |
+|-----------------+-----------------------|
+| =Cmd-RET=       | New line below        |
+| =Cmd-S-RET=     | New line above        |
+| =Cmd-/=         | Comment line          |
+| =Cmd-BACKSPACE= | Delete whole line     |
+| =M-UP=          | Move line up          |
+| =M-DOWN=        | Move line down        |
+
+** Words
+
+| Binding           | Action              |
+|-------------------+---------------------|
+| =M-BACKSPACE=     | Delete word back    |
+| =M-S-BACKSPACE=   | Delete word forward |
+| =M-u=             | Upcase word/region  |
+| =M-l=             | Downcase word/region|
+| =M-c=             | Capitalize word     |
+
+** Multiple Cursors
+
+| Binding     | Action                      |
+|-------------+-----------------------------|
+| =Cmd-d=     | Select next occurrence      |
+| =Cmd-D=     | Select all occurrences      |
+| =M-Cmd-d=   | Cursor on each line         |
+| =C-g= / =ESC= | Exit multiple cursors     |
+
+* Project Management (project.el)
+
+| Binding       | Action                  |
+|---------------+-------------------------|
+| =Cmd-p=       | Find file in project    |
+| =Cmd-F=       | Search in project       |
+| =Ctrl-Cmd-p=  | Switch project          |
+| =C-c p p=     | Switch project          |
+| =C-c p f=     | Find file in project    |
+| =C-c p g=     | Grep in project         |
+| =C-c p b=     | Switch to project buffer|
+| =C-c p k=     | Kill project buffers    |
+| =C-c p !=     | Shell command           |
+| =C-c p &=     | Async shell command     |
+
+* Completion & Actions
+
+** Minibuffer (Vertico)
+
+| Binding   | Action              |
+|-----------+---------------------|
+| =TAB=     | Next candidate      |
+| =S-TAB=   | Previous candidate  |
+| =RET=     | Select              |
+| =M-.=     | Preview             |
+| =C-g=     | Cancel              |
+
+** Embark Actions
+
+| Binding | Action                     |
+|---------+----------------------------|
+| =C-.=   | Embark act (context menu)  |
+| =C-;=   | Embark dwim (smart action) |
+| =C-h B= | Show all bindings          |
+
+** Code Completion (Corfu)
+
+| Binding   | Action              |
+|-----------+---------------------|
+| =TAB=     | Next candidate      |
+| =S-TAB=   | Previous candidate  |
+| =RET=     | Insert completion   |
+
+** Cape (Completion Sources)
+
+| Binding     | Action             |
+|-------------+--------------------|
+| =C-c p p=   | Complete at point  |
+| =C-c p d=   | Dabbrev completion |
+| =C-c p f=   | File completion    |
+| =C-c p h=   | History completion |
+| =C-c p w=   | Dictionary         |
+
+* File Tree (Treemacs)
+
+| Binding     | Action                  |
+|-------------+-------------------------|
+| =Cmd-B=     | Toggle Treemacs         |
+| =C-x t t=   | Toggle Treemacs         |
+| =C-x t 1=   | Delete other windows    |
+| =C-x t d=   | Select directory        |
+| =C-x t B=   | Bookmark                |
+| =C-x t f=   | Find file in Treemacs   |
+
+* Git (Magit)
+
+** Global
+
+| Binding | Action       |
+|---------+--------------|
+| =Cmd-g= | Magit status |
+
+** In Magit Status
+
+| Binding | Action       |
+|---------+--------------|
+| =s=     | Stage        |
+| =u=     | Unstage      |
+| =c=     | Commit menu  |
+| =P=     | Push menu    |
+| =F=     | Pull menu    |
+| =b=     | Branch menu  |
+| =l=     | Log menu     |
+| =d=     | Diff menu    |
+| =q=     | Quit         |
+
+* Terminal
+
+| Binding | Action       |
+|---------+--------------|
+| =Cmd-== | Toggle shell |
+
+* Spellcheck & Thesaurus
+
+| Binding       | Action                   |
+|---------------+--------------------------|
+| =Cmd-\=       | Correct word (popup)     |
+| =Ctrl-Cmd-\=  | Correct word (list)      |
+| =Cmd-|=       | Thesaurus lookup         |
+| =M-\=         | Define word              |
+
+* LSP (Eglot)
+
+| Binding     | Action        |
+|-------------+---------------|
+| =C-c l r=   | Rename symbol |
+| =C-c l a=   | Code actions  |
+| =C-c l f=   | Format buffer |
+| =C-c l d=   | Show docs     |
+
+* Org Mode
+
+** Core
+
+| Binding | Action      |
+|---------+-------------|
+| =C-c a= | Agenda      |
+| =C-c c= | Capture     |
+| =C-c l= | Store link  |
+
+** Capture Templates
+
+| Key | Template    |
+|-----|-------------|
+| =t= | Todo        |
+| =n= | Note        |
+| =j= | Journal     |
+| =l= | Link        |
+| =m= | Meeting     |
+
+** Images
+
+| Binding | Action                       |
+|---------+------------------------------|
+| =C-c s= | Screenshot and insert        |
+| =C-c y= | Paste image from clipboard   |
+
+** macOS Links
+
+| Binding   | Action                           |
+|-----------+----------------------------------|
+| =C-c g=   | Grab link from Safari/Finder/etc |
+| =C-c C-l= | Paste URL with title             |
+
+* Denote (Notes)
+
+** Creating Notes
+
+| Binding     | Action                  |
+|-------------+-------------------------|
+| =C-c n n=   | New note                |
+| =C-c n N=   | New note (choose type)  |
+| =C-c n t=   | New from template       |
+| =C-c n j=   | Today's journal entry   |
+
+** Finding Notes
+
+| Binding     | Action              |
+|-------------+---------------------|
+| =C-c n f=   | Find or create note |
+| =C-c n g=   | Grep through notes  |
+
+** Linking
+
+| Binding     | Action                |
+|-------------+-----------------------|
+| =C-c n i=   | Insert link to note   |
+| =C-c n I=   | Add links (regex)     |
+| =C-c n l=   | Show backlinks        |
+| =C-c n L=   | Find and open backlink|
+
+** Organizing
+
+| Binding     | Action                       |
+|-------------+------------------------------|
+| =C-c n r=   | Rename file                  |
+| =C-c n R=   | Rename from front matter     |
+
+* Emacs Essentials
+
+| Binding     | Action                    |
+|-------------+---------------------------|
+| =C-g=       | Cancel / quit             |
+| =ESC=       | Cancel (alternative)      |
+| =M-x=       | Run command               |
+| =Cmd-P=     | Run command (alternative) |
+| =C-h k=     | Describe key              |
+| =C-h f=     | Describe function         |
+| =C-h v=     | Describe variable         |
+| =C-h m=     | Describe current modes    |
