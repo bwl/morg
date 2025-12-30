@@ -724,26 +724,245 @@ point reaches the beginning or end of the buffer, stop there."
 
 ;; ========
 ;; ORG MODE
+;; The heart of Morg - making Org Mode the best it can be on macOS
 
 
-;; Some basic Org defaults
+;; Core Org settings
 (use-package org
   :config
-  (setq org-startup-indented t)         ;; Visually indent sections. This looks better for smaller files.
-  (setq org-src-tab-acts-natively t)    ;; Tab in source blocks should act like in major mode
+  ;; Visual settings
+  (setq org-startup-indented t)           ;; Visually indent sections
+  (setq org-startup-folded 'content)      ;; Show headings on startup
+  (setq org-hide-emphasis-markers t)      ;; Hide markup like *bold* /italic/
+  (setq org-pretty-entities t)            ;; Show entities as UTF-8 characters
+  (setq org-ellipsis " ▾")                ;; Nicer ellipsis for folded content
+  (setq org-hide-leading-stars t)         ;; Hide leading stars
+
+  ;; Source blocks
+  (setq org-src-tab-acts-natively t)      ;; Tab in source blocks acts like in major mode
   (setq org-src-preserve-indentation t)
-  (setq org-log-into-drawer t)          ;; State changes for todos and also notes should go into a Logbook drawer
-  (setq org-src-fontify-natively t)     ;; Code highlighting in code blocks
-  (setq org-log-done 'time)             ;; Add closed date when todo goes to DONE state
-  (setq org-support-shift-select t))    ;; Allow shift selection with arrows.
+  (setq org-src-fontify-natively t)       ;; Code highlighting in code blocks
+  (setq org-edit-src-content-indentation 0)
+
+  ;; TODO and logging
+  (setq org-log-into-drawer t)            ;; State changes go into a Logbook drawer
+  (setq org-log-done 'time)               ;; Add closed date when todo goes to DONE
+  (setq org-todo-keywords
+        '((sequence "TODO(t)" "NEXT(n)" "WAITING(w@/!)" "|" "DONE(d!)" "CANCELLED(c@)")))
+
+  ;; Behavior
+  (setq org-return-follows-link t)        ;; Enter follows links
+  (setq org-support-shift-select t)       ;; Allow shift selection with arrows
+  (setq org-catch-invisible-edits 'smart) ;; Prevent accidental edits in folded areas
+  (setq org-image-actual-width '(600))    ;; Reasonable default image width
+
+  ;; Keybindings
+  (global-set-key (kbd "C-c a") 'org-agenda)
+  (global-set-key (kbd "C-c c") 'org-capture)
+  (global-set-key (kbd "C-c l") 'org-store-link))
 
 
-;; Store all my org files in ~/org.
+;; Store all org files in ~/org
 (setq org-directory "~/org")
-
-
-;; And all of those files should be in included agenda.
 (setq org-agenda-files '("~/org"))
+(setq org-default-notes-file (concat org-directory "/inbox.org"))
+
+
+;; ==================
+;; ORG-MODERN: Beautiful, modern Org Mode visuals
+
+
+(use-package org-modern
+  :hook ((org-mode . org-modern-mode)
+         (org-agenda-finalize . org-modern-agenda))
+  :config
+  (setq org-modern-star '("◉" "○" "◈" "◇" "▸"))
+  (setq org-modern-list '((?- . "•") (?+ . "◦") (?* . "‣")))
+  (setq org-modern-checkbox '((?X . "☑") (?- . "◫") (?\s . "☐")))
+  (setq org-modern-table-vertical 1)
+  (setq org-modern-table-horizontal 0.2)
+  (setq org-modern-block-fringe nil)
+  (setq org-modern-tag t)
+  (setq org-modern-priority t)
+  (setq org-modern-todo t)
+  (setq org-modern-keyword t))
+
+
+;; ==================
+;; ORG-APPEAR: Show markup when cursor is nearby
+
+
+(use-package org-appear
+  :hook (org-mode . org-appear-mode)
+  :config
+  (setq org-appear-autoemphasis t)
+  (setq org-appear-autolinks t)
+  (setq org-appear-autosubmarkers t))
+
+
+;; ==================
+;; OLIVETTI: Distraction-free writing mode
+
+
+(use-package olivetti
+  :hook (org-mode . olivetti-mode)
+  :config
+  (setq olivetti-body-width 80)
+  (setq olivetti-style 'fancy))
+
+
+;; ==================
+;; MIXED-PITCH: Variable pitch for prose, fixed for code
+
+
+(use-package mixed-pitch
+  :hook (org-mode . mixed-pitch-mode)
+  :config
+  ;; Use a nice variable-pitch font for prose
+  (when (member "SF Pro Text" (font-family-list))
+    (set-face-attribute 'variable-pitch nil :family "SF Pro Text" :height 1.0))
+  (when (member "Georgia" (font-family-list))
+    (set-face-attribute 'variable-pitch nil :family "Georgia" :height 1.1)))
+
+
+;; ==================
+;; ORG-CAPTURE: Quick capture templates
+
+
+(setq org-capture-templates
+      '(("t" "Todo" entry (file+headline "inbox.org" "Tasks")
+         "* TODO %?\n:PROPERTIES:\n:CREATED: %U\n:END:\n%i")
+
+        ("n" "Note" entry (file+headline "inbox.org" "Notes")
+         "* %?\n:PROPERTIES:\n:CREATED: %U\n:END:\n%i")
+
+        ("j" "Journal" entry (file+datetree "journal.org")
+         "* %<%H:%M> %?\n%i")
+
+        ("l" "Link" entry (file+headline "inbox.org" "Links")
+         "* %? [[%:link][%:description]]\n:PROPERTIES:\n:CREATED: %U\n:END:\n%i")
+
+        ("m" "Meeting" entry (file+headline "inbox.org" "Meetings")
+         "* MEETING %?\n:PROPERTIES:\n:CREATED: %U\n:END:\n** Attendees\n- \n** Notes\n\n** Action Items\n- [ ] ")))
+
+
+;; ==================
+;; ORG-SUPER-AGENDA: Better agenda grouping
+
+
+(use-package org-super-agenda
+  :after org-agenda
+  :config
+  (org-super-agenda-mode 1)
+  (setq org-super-agenda-groups
+        '((:name "Today"
+           :time-grid t
+           :date today
+           :scheduled today
+           :order 1)
+          (:name "Important"
+           :priority "A"
+           :order 2)
+          (:name "Next"
+           :todo "NEXT"
+           :order 3)
+          (:name "Waiting"
+           :todo "WAITING"
+           :order 4)
+          (:name "Upcoming"
+           :deadline future
+           :order 5)
+          (:name "Someday"
+           :priority<= "C"
+           :todo ("TODO")
+           :order 6))))
+
+
+;; ==================
+;; ORG-ROAM: Networked knowledge management (Zettelkasten)
+
+
+(use-package org-roam
+  :custom
+  (org-roam-directory (file-truename "~/org/roam"))
+  (org-roam-completion-everywhere t)
+  (org-roam-capture-templates
+   '(("d" "default" plain
+      "%?"
+      :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org"
+                         "#+title: ${title}\n#+date: %U\n#+filetags: \n\n")
+      :unnarrowed t)
+     ("r" "reference" plain
+      "%?"
+      :target (file+head "references/%<%Y%m%d%H%M%S>-${slug}.org"
+                         "#+title: ${title}\n#+date: %U\n#+filetags: :reference:\n\n* Source\n\n* Summary\n\n* Notes\n")
+      :unnarrowed t)
+     ("p" "project" plain
+      "* Goals\n\n%?\n\n* Tasks\n\n* Notes\n"
+      :target (file+head "projects/%<%Y%m%d%H%M%S>-${slug}.org"
+                         "#+title: ${title}\n#+date: %U\n#+filetags: :project:\n\n")
+      :unnarrowed t)))
+  :bind (("C-c n l" . org-roam-buffer-toggle)
+         ("C-c n f" . org-roam-node-find)
+         ("C-c n g" . org-roam-graph)
+         ("C-c n i" . org-roam-node-insert)
+         ("C-c n c" . org-roam-capture)
+         ("C-c n j" . org-roam-dailies-capture-today)
+         ("C-c n t" . org-roam-dailies-goto-today))
+  :config
+  (org-roam-db-autosync-mode)
+
+  ;; Dailies configuration
+  (setq org-roam-dailies-directory "daily/")
+  (setq org-roam-dailies-capture-templates
+        '(("d" "default" entry
+           "* %?"
+           :target (file+head "%<%Y-%m-%d>.org"
+                              "#+title: %<%Y-%m-%d %A>\n\n")))))
+
+
+;; ==================
+;; ORG-DOWNLOAD: Drag and drop images
+
+
+(use-package org-download
+  :after org
+  :config
+  (setq org-download-method 'directory)
+  (setq org-download-image-dir (concat org-directory "/images"))
+  (setq org-download-heading-lvl nil)
+  (setq org-download-timestamp "%Y%m%d-%H%M%S_")
+  (setq org-download-screenshot-method "screencapture -i %s")  ;; macOS screenshot
+  :bind (:map org-mode-map
+              ("C-c s" . org-download-screenshot)
+              ("C-c y" . org-download-clipboard)))
+
+
+;; ==================
+;; ORG-MAC-LINK: Grab links from macOS apps
+
+
+(use-package org-mac-link
+  :after org
+  :bind (:map org-mode-map
+              ("C-c g" . org-mac-grab-link))
+  :config
+  ;; Default apps to grab links from
+  (setq org-mac-grab-Acrobat-app-p nil)  ;; Disable Acrobat by default
+  (setq org-mac-grab-devonthink-app-p nil))
+
+
+;; ==================
+;; ORG-CLIPLINK: Better link pasting
+
+
+(use-package org-cliplink
+  :bind (:map org-mode-map
+              ("C-c C-l" . org-cliplink)))
+
+
+;; ==================
+;; Open config files
 
 
 ;; Open config file by pressing C-x and then C

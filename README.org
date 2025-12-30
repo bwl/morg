@@ -9,14 +9,35 @@
 -----
 
 * Features
-- Compatibility with common macOS keybindings
-- Org + OrgRoam Focus
+
+*The Best Org Mode Experience on macOS*
+
+** Org Mode Power
+- *org-roam*: Networked knowledge management (Zettelkasten method)
+- *org-modern*: Beautiful, modern visual styling
+- *org-super-agenda*: Smart agenda grouping (Today, Important, Next, Waiting, etc.)
+- *org-capture*: Quick capture templates for todos, notes, journal, meetings
+- *org-download*: Drag-and-drop images, screenshots with =C-c s=
+- *org-mac-link*: Grab links from Safari, Finder, Mail, and other macOS apps
+- *olivetti*: Distraction-free centered writing mode
+- *mixed-pitch*: Beautiful typography (variable fonts for prose, fixed for code)
+
+** Modern Emacs
+- Requires Emacs 29+ with native-comp, tree-sitter, and eglot (LSP)
+- Pixel-smooth scrolling like native macOS apps
+- Fast startup with optimized early-init
+
+** macOS Native Feel
+- Command key works as expected (Cmd-S save, Cmd-Z undo, Cmd-Q quit)
+- System clipboard integration
+- Native dark mode support
 - Ergonomic keybindings that follow simple, sensible rules
-- Easy windows management and movement
-- Easy movement between points in the file and between files
-- Multiple cursors, project manager, Git front end, file tree, terminal
-- Handy spellchecker, built-in thesaurus and word definition lookup
-- A handful of tiny, useful helper functions
+
+** Developer Tools
+- Multiple cursors, project manager (Projectile), Git (Magit), file tree
+- LSP support via eglot with common language servers
+- Tree-sitter for better syntax highlighting
+- Spellchecker, thesaurus, and word definition lookup
 
 * Table of Contents
 :PROPERTIES:
@@ -531,22 +552,104 @@ This requires an internet connection.
 
 Org mode is for keeping notes, maintaining TODO lists, planning projects, and authoring documents with a fast and effective plain-text system. Learn more about Org at https://orgmode.org/. (Caution! This is a black hole!)
 
-Morg provides some nice defaults:
+Morg is designed to be the *best Org Mode experience on macOS*, with beautiful visuals, powerful knowledge management, and seamless macOS integration.
 
-- Visually indent sections
-- Tab in source blocks acts like in corresponding major mode
-- Code highlighting works in code blocks
-- When TODO changes state, history goes to logbook
-- When TODO becomes DONE, current time and date are recorded
-- Shift selection with arrows work (unless you're in a spot where Org mode's default actions kick in)
+*** Visual Experience
 
-Put your org files in =~/org=. If you use Dropbox or similar cloud provider, I suggest storing your actual org folder there, and providing a symlink like so:
+Morg includes several packages for a beautiful, distraction-free writing experience:
+
+- *org-modern*: Beautiful headers, checkboxes, tables, and tags
+- *org-appear*: Shows hidden markup when your cursor is nearby
+- *olivetti*: Centers content for focused, distraction-free writing
+- *mixed-pitch*: Variable pitch fonts for prose, fixed pitch for code
+
+*** Core Keybindings
+
+| Binding   | Description      |
+|-----------+------------------|
+| =C-c a=   | Open agenda      |
+| =C-c c=   | Quick capture    |
+| =C-c l=   | Store link       |
+
+*** Quick Capture Templates
+
+Press =C-c c= to capture quickly. Available templates:
+
+| Key | Description                          |
+|-----+--------------------------------------|
+| =t= | New TODO item                        |
+| =n= | Quick note                           |
+| =j= | Journal entry (filed by date)        |
+| =l= | Link (from browser)                  |
+| =m= | Meeting with attendees and actions   |
+
+*** Super Agenda
+
+The agenda (=C-c a=) is organized with smart grouping:
+
+- *Today*: Scheduled for today, time-grid items
+- *Important*: Priority A items
+- *Next*: Items marked as NEXT
+- *Waiting*: Items you're waiting on
+- *Upcoming*: Future deadlines
+- *Someday*: Lower priority TODOs
+
+*** Org-Roam: Knowledge Management
+
+Org-roam provides networked note-taking inspired by Roam Research. Notes are stored in =~/org/roam=.
+
+| Binding   | Description                         |
+|-----------+-------------------------------------|
+| =C-c n f= | Find or create a note               |
+| =C-c n i= | Insert link to another note         |
+| =C-c n l= | Toggle backlinks buffer             |
+| =C-c n g= | View graph of connections           |
+| =C-c n c= | Capture a new note                  |
+| =C-c n j= | Capture to today's daily note       |
+| =C-c n t= | Go to today's daily note            |
+
+Capture templates for org-roam:
+
+| Key | Description                               |
+|-----+-------------------------------------------|
+| =d= | Default note                              |
+| =r= | Reference note (for sources/articles)     |
+| =p= | Project note                              |
+
+*** Images
+
+Morg makes it easy to add images to your notes:
+
+| Binding | Description                              |
+|---------+------------------------------------------|
+| =C-c s= | Take screenshot and insert (macOS)       |
+| =C-c y= | Paste image from clipboard               |
+
+Images are saved to =~/org/images/=.
+
+*** macOS Integration
+
+Grab links from macOS applications:
+
+| Binding | Description                              |
+|---------+------------------------------------------|
+| =C-c g= | Grab link from Safari, Finder, Mail, etc |
+| =C-c C-l= | Paste URL with title from clipboard    |
+
+*** Setup
+
+Put your org files in =~/org=. Create the required directories:
+
+#+BEGIN_SRC sh
+mkdir -p ~/org/roam/daily ~/org/roam/references ~/org/roam/projects ~/org/images
+touch ~/org/inbox.org ~/org/journal.org
+#+END_SRC
+
+If you use Dropbox or similar cloud provider, I suggest storing your actual org folder there, and providing a symlink:
 
 #+BEGIN_SRC
 ln -s ~/Dropbox/Org ~/org
 #+END_SRC
-
-Org agenda looks inside all the files in =~/org=
 
 
 * Why this name?
